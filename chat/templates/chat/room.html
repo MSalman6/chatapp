@@ -22,8 +22,8 @@
       <div id="profile">
         <div class="wrap">
           <img id="profile-img" src="http://emilcarlsson.se/assets/mikeross.png" class="online" alt="" />
-          <p style="text-transform: capitalize;">{{ username }}</p>
-          <i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+          <p style="text-transform: capitalize;">{{ user.username }}</p>
+          <i class="fa fa-chevron-down expand-button" aria-hidden="true" value="create"></i>
           <div id="status-options">
             <ul>
               <li id="status-online" class="active"><span class="status-circle"></span> <p>Online</p></li>
@@ -33,12 +33,14 @@
             </ul>
           </div>
           <div id="expanded">
-            <label for="twitter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
-            <input name="twitter" type="text" value="mikeross" />
-            <label for="twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
-            <input name="twitter" type="text" value="ross81" />
-            <label for="twitter"><i class="fa fa-instagram fa-fw" aria-hidden="true"></i></label>
-            <input name="twitter" type="text" value="mike.ross" />
+            <label for="fa-twitter tter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
+            <form action='http://127.0.0.1:8003/chat/create/' method='POST'>
+              {% csrf_token %}
+              <button type="submit" value="{'messages': [99],'participants': ['realadmin']">Press me to create chat</button>
+            </form>
+            {% for user in users %}
+            <input name="twitter" type="button" value="{{ user }}" />
+            {% endfor %}
           </div>
         </div>
       </div>
@@ -48,26 +50,18 @@
       </div>
       <div id="contacts">
         <ul>
+          {% for chat in chats %}
           <li class="contact">
             <div class="wrap">
               <span class="contact-status online"></span>
               <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
-              <div class="meta">
-                <p class="name">Louis Litt</p>
-                <p class="preview">You just got LITT up, Mike.</p>
+              <a href="http://127.0.0.1:8003/{{ chat }}/"><div class="meta">
+                <p class="name" style="text-transform: capitalize;font-size: 18px">{{ chat }}</p><a>
+                <p class="preview"></p></a>
               </div>
             </div>
           </li>
-          <li class="contact active">
-            <div class="wrap">
-              <span class="contact-status busy"></span>
-              <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-              <div class="meta">
-                <p class="name">Harvey Specter</p>
-                <p class="preview">Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
-              </div>
-            </div>
-          </li>
+          {% endfor %}
         </ul>
       </div>
       <div id="bottom-bar">
@@ -78,7 +72,7 @@
     <div class="content">
       <div class="contact-profile">
         <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-        <p style="text-transform: capitalize;">{{ username }}</p>
+        <p style="text-transform: capitalize;">{{ user.username }}</p>
         <div class="social-media">
           <i class="fa fa-facebook" aria-hidden="true"></i>
           <i class="fa fa-twitter" aria-hidden="true"></i>
@@ -87,13 +81,6 @@
       </div>
       <div class="messages">
         <ul id="chat-log">
-          {% comment %} <li class="sent">
-            <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-          </li>
-          <li class="replies">
-            <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-            <p>When you're backed against the wall, break the god damn thing down.</p>
-          </li> {% endcomment %}
         </ul>
       </div>
       <div class="message-input">
@@ -111,12 +98,12 @@
 <script src="{% static 'main.js' %}"></script>
 <script src="{% static 'reconnecting-websocket.js' %}"></script>
 <script>
-    var roomName = {{ room_name_json }};
+    var yup = ['admin', 'matt']
     var username = {{ username }};
-
-    var chatSocket = new ReconnectingWebSocket(
+    var chatId = {{ chatId }}
+    var chatSocket = new WebSocket(
         'ws://' + window.location.host +
-        '/ws/chat/' + roomName + '/');
+        '/ws/chat/' + chatId + '/');
 
     chatSocket.onopen = function(e) {
       fetchMessages();
@@ -149,14 +136,15 @@
         chatSocket.send(JSON.stringify({
             'command': 'new_message',
             'message': message,
-            'from': username
+            'from': username,
+            'chatId': chatId
         }));
 
         messageInputDom.value = '';
     };
 
     function fetchMessages() {
-      chatSocket.send(JSON.stringify({'command': 'fetch_messages' }));
+      chatSocket.send(JSON.stringify({'command': 'fetch_messages', "username": username , 'chatId': chatId}));
     }
 
     function createMessage(data) {
@@ -176,8 +164,6 @@
       msgListTag.appendChild(pTag);
       document.querySelector('#chat-log').appendChild(msgListTag);
     }
-
 </script>
 </body>
-
 </html>
