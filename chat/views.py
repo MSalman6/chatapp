@@ -13,7 +13,7 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView
 )
-from chat.models import Chat, Contact
+from chat.models import Chat, Contact, ChatCreator
 from .serializers import ChatSerializer
 from .consumers import ChatConsumer
 from . import forms
@@ -25,9 +25,15 @@ User = get_user_model()
 
 
 # Query functions
-def get_last_10_messages(chatId):
-    chat = get_object_or_404(Chat, id=chatId)
-    return chat.messages.order_by('-timestamp').all()[:10]
+def get_last_10_messages(chatId, username):
+    user = username
+    chat = Chat.objects.get(id=chatId)
+    participants = chat.participants.order_by('user')
+    if user in str(participants):
+        chat = get_object_or_404(Chat, id=chatId)
+        return chat.messages.order_by('-timestamp').all()[:10]
+    else:
+        return HttpResponse("You are not allowed to view this conversation.")
 
 def get_user_contact(username):
     user = get_object_or_404(username=username)
@@ -48,9 +54,7 @@ def create_chat_view(request):
         inp_participants = list(inp_participants.split(","))
     contacts = Contact.objects.all()
     for i in range(len(inp_participants)):
-        if inp_participants[i] in str(contacts):
-            pass
-        else:
+        if inp_participants[i] not in str(contacts):
             create_contact(username=inp_participants[i])
     participants = []
     for x in range(len(inp_participants)):
@@ -65,8 +69,19 @@ def create_chat_view(request):
     url = 'http://127.0.0.1:8000/chat/create/'
     result = requests.post(url, data=content)
     redirect_id = result.json()["id"]
+    user_name = request.user.username
+    user_object = User.objects.filter(username=user_name)
+    creators = ChatCreator.objects.all()
+    if request.user.username in str(creators):
+        get_related_chats_object = ChatCreator.objects.get(creator_id=user_object[0].id)
+        chat_object = Chat.objects.filter(id=result.json()["id"])
+        get_related_chats_object.related_chats.add(chat_object)
+    else:
+        ChatCreator.objects.create(creator=user_object[0])
+        get_related_chats_object = ChatCreator.objects.get(creator_id=user_object[0].id)
+        chat_object = Chat.objects.filter(id=result.json()["id"])
+        get_related_chats_object.related_chats.add(chat_object)
     return redirect('/{}'.format(redirect_id))
-
 
 @login_required
 def index(request):
@@ -74,13 +89,28 @@ def index(request):
 
 @login_required
 def room(request, chatId):
+    user_name = request.user.username
+    user_object = User.objects.filter(username=user_name)
+    creators = ChatCreator.objects.all()
+    if request.user.username in str(creators):
+        get_chat = ChatCreator.objects.get(creator=user_object[0].id)
+        user_chats = get_chat.related_chats.all()
+        get_chat_participants = Chat.objects.get(id=chatId)
+        ## TODO : SHOW CHATS AS RECIPANT NAMES
+        participants_query = get_chat_participants.participants.order_by('user')
+        participants_list = []
+        for i in range(len(participants_query)):
+            if str(participants_query[i]) != user_name:
+                participants_list.append(participants_query[i])
+    else:
+        user_chats = None
     form = forms.CreateContactForm()
     return render(request, 'chat/room.html', {
         'chatId': mark_safe(json.dumps(chatId)),
         'username': mark_safe(json.dumps(request.user.username)),
         'users': User.objects.all(),
         'contacts': Contact.objects.all(),
-        'chats': Chat.objects.all(),
+        'chats': user_chats,
         'form': form
     }) 
     

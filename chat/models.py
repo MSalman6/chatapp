@@ -3,6 +3,7 @@ from django.db import models
 
 User = get_user_model()
 
+
 class Contact(models.Model):
     user = models.ForeignKey(User, related_name='friends', on_delete=models.CASCADE)
     friends = models.ManyToManyField('self', blank=True)
@@ -26,3 +27,11 @@ class Chat(models.Model):
 
     def __str__(self):
         return "{}".format(self.pk)
+
+
+class ChatCreator(models.Model):
+    creator = models.ForeignKey(User, related_name='creator', on_delete=models.CASCADE, blank=True, null=True)
+    related_chats = models.ManyToManyField(Chat, blank=True)
+
+    def __str__(self):
+        return self.creator.username

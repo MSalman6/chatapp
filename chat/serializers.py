@@ -15,7 +15,6 @@ class ChatSerializer(serializers.ModelSerializer):
 		fields = ('id', 'messages', 'participants')
 
 	def create(self, validated_data):
-		print(validated_data)
 		participants = validated_data.pop('participants')
 		chat = Chat()
 		chat.save()

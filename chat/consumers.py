@@ -34,7 +34,7 @@ class ChatConsumer(WebsocketConsumer):
 
     # Custom functions
     def fetch_messages(self, data):
-        messages = chat.views.get_last_10_messages(data['chatId'])
+        messages = chat.views.get_last_10_messages(chatId=data['chatId'], username=data['username'])
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages),
