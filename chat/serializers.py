@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from chat.models import Chat
-import chat.views
+from chat import views
 
 
 class ContactSerializer(serializers.StringRelatedField):
@@ -18,9 +18,9 @@ class ChatSerializer(serializers.ModelSerializer):
 		print(validated_data)
 		participants = validated_data.pop('participants')
 		chat = Chat()
-		chat.save
+		chat.save()
 		for username in participants:
-			contact = chat.views.get_user_contact(username)
+			contact = views.get_user_contact(username)
 			chat.participants.add(contact)
 		chat.save()
 		return chat

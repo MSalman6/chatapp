@@ -33,14 +33,15 @@
             </ul>
           </div>
           <div id="expanded">
-            <label for="fa-twitter tter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
-            <form action='http://127.0.0.1:8003/chat/create/' method='POST'>
+<!--             <label for="fa-twitter tter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label> -->
+            <form action='http://127.0.0.1:8000/chat/test/' method='POST'>
               {% csrf_token %}
-              <button type="submit" value="{'messages': [99],'participants': ['realadmin']">Press me to create chat</button>
+              {{ form.participants }}
+              <button type="submit">Post</button>
             </form>
-            {% for user in users %}
+<!--             {% for user in users %}
             <input name="twitter" type="button" value="{{ user }}" />
-            {% endfor %}
+            {% endfor %} -->
           </div>
         </div>
       </div>
@@ -55,7 +56,7 @@
             <div class="wrap">
               <span class="contact-status online"></span>
               <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
-              <a href="http://127.0.0.1:8003/{{ chat }}/"><div class="meta">
+              <a href="http://127.0.0.1:8000/{{ chat }}/"><div class="meta">
                 <p class="name" style="text-transform: capitalize;font-size: 18px">{{ chat }}</p><a>
                 <p class="preview"></p></a>
               </div>
@@ -98,7 +99,6 @@
 <script src="{% static 'main.js' %}"></script>
 <script src="{% static 'reconnecting-websocket.js' %}"></script>
 <script>
-    var yup = ['admin', 'matt']
     var username = {{ username }};
     var chatId = {{ chatId }}
     var chatSocket = new WebSocket(
@@ -156,9 +156,9 @@
       imgTag.src = 'http://emilcarlsson.se/assets/mikeross.png';
       
       if (author === username) {
-        msgListTag.className = 'sent';
-      } else {
         msgListTag.className = 'replies';
+      } else {
+        msgListTag.className = 'sent';
       }
       msgListTag.appendChild(imgTag);
       msgListTag.appendChild(pTag);
