@@ -37,8 +37,9 @@ def get_last_10_messages(chatId, username):
         return HttpResponse("You are not allowed to view this conversation.")
 
 def get_user_contact(username):
-    user = get_object_or_404(username=username)
-    return get_object_or_404(Contact, user=user)
+    user = get_object_or_404(User, username=username)
+    contact = get_object_or_404(Contact, user=user)
+    return contact
 
 def get_current_chat(chatId):
     return get_object_or_404(Chat, id=chatId)

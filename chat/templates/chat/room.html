@@ -23,8 +23,20 @@
          }
     function display(val)
      {
+        if (document.getElementById("id_participants").value.indexOf(val) == -1){
          document.getElementById("id_participants").value+=(val+",")
+        } else {
+          document.getElementById("id_participants").value=document.getElementById("id_participants").value
+        }
      }
+function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
   </script>
   </head>
 
@@ -38,29 +50,35 @@
           <p style="text-transform: capitalize;">{{ user.username }}</p>
           <i class="fa fa-chevron-down expand-button" aria-hidden="true" value="create"></i>
           <div id="status-options">
-            <ul>
-              <li id="status-online" class="active"><span class="status-circle"></span> <p>Online</p></li>
-              <li id="status-away"><span class="status-circle"></span> <p>Away</p></li>
-              <li id="status-busy"><span class="status-circle"></span> <p>Busy</p></li>
-              <li id="status-offline"><span class="status-circle"></span> <p>Offline</p></li>
-            </ul>
           </div>
           <div id="expanded">
           </div>
         </div>
       </div>
       <div id="search">
-        <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
-        <input type="text" placeholder="Search contacts..." />
+        <center>
+        <button onclick="myFunction()" style="border: none;text-align: center;font-size: 16px;width:100%;height:30px;border-radius: 6px;" onclick="back()">Create New Chat</button>
+        <div id="myDIV">
+            <form action='/chat/create_chat_view/' method='POST'> 
+            {% csrf_token %}
+            <input readonly onfocus="this.blur" type="hidden" name="participants" maxlength="200" required id="id_participants" value="{{ user.username }},"><br>
+            {% for user in users %}
+            <div class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;">{{ user }}</div><br>
+            {% endfor %}
+            <button style="border: none;text-align: center;font-size: 16px;width:50%;height:30px;border-radius: 6px;" onclick="back()">Chat</button>
+            </form>
+        </div>
+      </center>
       </div>
       <div id="contacts">
         <ul>
+          <h3>Chats</h3>
           {% for name, id in chats %} 
           <li class="contact">
             <div class="wrap">
               <span class="contact-status online"></span>
               <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
-              <a href="http://127.0.0.1:8000/{{ id }}/"><div class="meta">
+              <a href="/{{ id }}/"><div class="meta">
                <p class="name" style="text-transform: capitalize;font-size: 18px">{{ name }}</p>
                 <p class="preview"></p>
               </a>
@@ -71,21 +89,10 @@
         </ul>
       </div>
       <div id="bottom-bar">
-        <h4>----------------Create New Chat----------------</h4>
-            <form action='http://127.0.0.1:8000/chat/create_chat_view/' method='POST'> 
-            {% csrf_token %}
-            <input readonly onfocus="this.blur" type="text" name="participants" maxlength="200" required id="id_participants"><br>
-            {% for user in users %}
-              <div class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;color: green">{{ user }}</div>
-            {% endfor %}
-            <button onclick="back()">Create</button>
-            </form>
       </div>
     </div>
     <div class="content">
       <div class="contact-profile">
-        <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-        <p style="text-transform: capitalize;">{{ user.username }}</p>
         <div class="social-media">
           <i class="fa fa-facebook" aria-hidden="true"></i>
           <i class="fa fa-twitter" aria-hidden="true"></i>

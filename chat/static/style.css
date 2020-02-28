@@ -672,14 +672,7 @@ body {
 .fa {
   font-size: 1.5em !important;
 }
-.btn {
-         border: none;
-         padding: 16px 32px;
-         text-align: center;
-         font-size: 16px;
-         margin: 4px 2px;
-         transition: 0.3s;
-         width:100px;
-         height:70px;
-         border-radius: 6px;
-      }
+
+.btn:hover {
+background: green;
+}
