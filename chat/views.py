@@ -105,49 +105,7 @@ def create_chat_view(request):
 
 @login_required
 def index(request):
-    user_name = request.user.username
-    chat = Chat.objects.all()
-    user_object = User.objects.filter(username=user_name)
-    user_chats = []
-    chat_name = []
-    new_list = []
-    old_list = []
-    for i in range(len(chat)):
-        chat_obj = chat[i]
-        get_chat_obj = Chat.objects.get(id=str(chat_obj))
-        participants = get_chat_obj.participants.order_by('user')
-        if user_name in str(participants):
-            item = Chat.objects.get(id=str(get_chat_obj))
-            user_chats.append(item)
-            names = item.participants.order_by('user')
-            if len(names) == 1:
-                chat_name.append(Contact.objects.get(user=user_object[0]))
-            elif len(names) == 2:
-                for g in range(len(names)):
-                    if user_name != str(names[g]):
-                        chat_name_list = []
-                        chat_name_list.append(names[g])
-                        chat_name.append(chat_name_list[0])
-            elif len(names) > 2:
-                for m in range(len(names)):
-                    new_list.append(names[m])
-    for k in range(len(new_list)):
-        t = new_list[k]
-        old_list.append(str(t))
-    chat_name.append(old_list)
-    form = forms.CreateContactForm()
-    return render(request, 'chat/room.html', {
-        'username': mark_safe(json.dumps(request.user.username)),
-        'users': User.objects.all(),
-        'contacts': Contact.objects.all(),
-        'form': form,
-        'chats' : zip(chat_name,user_chats)
-        })
-
-
-# TODO: Return Chats in which User is a participant
-@login_required
-def room(request, chatId):
+    # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
     creators = ChatCreator.objects.all()
@@ -181,6 +139,55 @@ def room(request, chatId):
         t = new_list[k]
         old_list.append(str(t))
     chat_name.append(old_list)
+    ###############################################
+    form = forms.CreateContactForm()
+    return render(request, 'chat/room.html', {
+        'username': mark_safe(json.dumps(request.user.username)),
+        'users': User.objects.all(),
+        'contacts': Contact.objects.all(),
+        'form': form,
+        'chats' : zip(chat_name,user_chats)
+        })
+
+
+# TODO: Return Chats in which User is a participant
+@login_required
+def room(request, chatId):
+    # for displaying stuff from backend to frontend
+    user_name = request.user.username
+    user_object = User.objects.filter(username=user_name)
+    creators = ChatCreator.objects.all()
+    contact_id = Contact.objects.get(user=user_object[0].id)
+    #Return Chats in which User is a participant as 
+    chat = Chat.objects.all()
+    user_chats = []
+    chat_name = []
+    new_list = []
+    old_list = []
+    for i in range(len(chat)):
+        chat_obj = chat[i]
+        get_chat_obj = Chat.objects.get(id=str(chat_obj))
+        participants = get_chat_obj.participants.order_by('user')
+        if user_name in str(participants):
+            item = Chat.objects.get(id=str(get_chat_obj))
+            user_chats.append(item)
+            names = item.participants.order_by('user')
+            if len(names) == 1:
+                chat_name.append(Contact.objects.get(user=user_object[0]))
+            elif len(names) == 2:
+                for g in range(len(names)):
+                    if user_name != str(names[g]):
+                        chat_name_list = []
+                        chat_name_list.append(names[g])
+                        chat_name.append(chat_name_list[0])
+            elif len(names) > 2:
+                for m in range(len(names)):
+                    new_list.append(names[m])
+    for k in range(len(new_list)):
+        t = new_list[k]
+        old_list.append(str(t))
+    chat_name.append(old_list)
+    ###############################################
     form = forms.CreateContactForm()
     return render(request, 'chat/room.html', {
         'chatId': mark_safe(json.dumps(chatId)),
@@ -190,12 +197,6 @@ def room(request, chatId):
         'form': form,
         'chats' : zip(chat_name,user_chats)
         })
-    
-
-def get_user_contact(username):
-    user = get_object_or_404(User, username=username)
-    contact = get_object_or_404(Contact, user=user)
-    return contact
 
 
 class ChatListView(ListAPIView):
