@@ -55,7 +55,6 @@ def create_chat_view(request):
     # if it exists redirect to that chat
 
     user_name = request.user.username
-    print(request.data)
     inp_participants = request.data['participants']
     all_chats = Chat.objects.all()
     chat_names = []
@@ -118,6 +117,8 @@ def index(request):
     chat_name = []
     new_list = []
     old_list = []
+    names_list = []
+    ok_list = []
     for i in range(len(chat)):
         chat_obj = chat[i]
         get_chat_obj = Chat.objects.get(id=str(chat_obj))
@@ -126,21 +127,30 @@ def index(request):
             item = Chat.objects.get(id=str(get_chat_obj))
             user_chats.append(item)
             names = item.participants.order_by('user')
-            if len(names) == 1:
-                chat_name.append(Contact.objects.get(user=user_object[0]))
-            elif len(names) == 2:
-                for g in range(len(names)):
-                    if user_name != str(names[g]):
-                        chat_name_list = []
-                        chat_name_list.append(names[g])
-                        chat_name.append(chat_name_list[0])
-            elif len(names) > 2:
-                for m in range(len(names)):
-                    new_list.append(names[m])
+            names_list.append(names)
+    for i in range(len(names_list)):
+        if len(names_list[i]) == 1:
+            chat_name.append(Contact.objects.get(user=user_object[0]))
+        elif len(names_list[i]) == 2:
+            for j in range(len(names_list[i])):
+                if user_name != str(names_list[i][j]):
+                    chat_name_list = []
+                    chat_name_list.append(names_list[i][j])
+                    chat_name.append(chat_name_list[0])
+        elif len(names_list[i]) > 2:
+            new_list.append([])  
+            for k in range(len(names_list[i])):
+                
+                new_list[len(new_list)-1].append(names_list[i][k])
+            ok_list.append(new_list)
+
     for k in range(len(new_list)):
+        str1 = ""
         t = new_list[k]
-        old_list.append(str(t))
-    chat_name.append(old_list)
+        for i in range(len(new_list[k])):
+            str1+=(str(new_list[k][i])+",")
+            
+        chat_name.append(str1[:-1])
     ###############################################
     form = forms.CreateContactForm()
     return render(request, 'chat/room.html', {
@@ -167,6 +177,8 @@ def room(request, chatId):
     chat_name = []
     new_list = []
     old_list = []
+    names_list = []
+    ok_list = []
     for i in range(len(chat)):
         chat_obj = chat[i]
         get_chat_obj = Chat.objects.get(id=str(chat_obj))
@@ -175,21 +187,30 @@ def room(request, chatId):
             item = Chat.objects.get(id=str(get_chat_obj))
             user_chats.append(item)
             names = item.participants.order_by('user')
-            if len(names) == 1:
-                chat_name.append(Contact.objects.get(user=user_object[0]))
-            elif len(names) == 2:
-                for g in range(len(names)):
-                    if user_name != str(names[g]):
-                        chat_name_list = []
-                        chat_name_list.append(names[g])
-                        chat_name.append(chat_name_list[0])
-            elif len(names) > 2:
-                for m in range(len(names)):
-                    new_list.append(names[m])
+            names_list.append(names)
+    for i in range(len(names_list)):
+        if len(names_list[i]) == 1:
+            chat_name.append(Contact.objects.get(user=user_object[0]))
+        elif len(names_list[i]) == 2:
+            for j in range(len(names_list[i])):
+                if user_name != str(names_list[i][j]):
+                    chat_name_list = []
+                    chat_name_list.append(names_list[i][j])
+                    chat_name.append(chat_name_list[0])
+        elif len(names_list[i]) > 2:
+            new_list.append([])  
+            for k in range(len(names_list[i])):
+                
+                new_list[len(new_list)-1].append(names_list[i][k])
+            ok_list.append(new_list)
+
     for k in range(len(new_list)):
+        str1 = ""
         t = new_list[k]
-        old_list.append(str(t))
-    chat_name.append(old_list)
+        for i in range(len(new_list[k])):
+            str1+=(str(new_list[k][i])+",")
+            
+        chat_name.append(str1[:-1])
     ###############################################
     form = forms.CreateContactForm()
     return render(request, 'chat/room.html', {
