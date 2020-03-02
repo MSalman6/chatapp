@@ -676,3 +676,11 @@ body {
 .btn:hover {
 background: green;
 }
+
+.btn:focus {
+  color:red;
+}
+
+.toggle123 {
+  display:none;
+}

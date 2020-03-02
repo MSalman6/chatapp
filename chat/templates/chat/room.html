@@ -29,14 +29,11 @@
           document.getElementById("id_participants").value=document.getElementById("id_participants").value
         }
      }
-function myFunction() {
-  var x = document.getElementById("myDIV");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-  } else {
-    x.style.display = "none";
-  }
-}
+$(document).ready(function(){
+  $("#togglebtn").click(function(){
+    $("form").toggle();
+  });
+});
   </script>
   </head>
 
@@ -46,9 +43,9 @@ function myFunction() {
     <div id="sidepanel">
       <div id="profile">
         <div class="wrap">
-          <img id="profile-img" src="http://emilcarlsson.se/assets/mikeross.png" class="online" alt="" />
-          <p style="text-transform: capitalize;">{{ user.username }}</p>
-          <i class="fa fa-chevron-down expand-button" aria-hidden="true" value="create"></i>
+          <img id="profile-img" src="https://clipartart.com/images/default-profile-picture-clipart-3.jpg" class="online" alt="" />
+          <p style="text-transform: capitalize;font-size: 18px">{{ user.username }}</p>
+          <a href="/accounts/logout/" style="font-size: 14px;color:white;float:right;">Logout</a>
           <div id="status-options">
           </div>
           <div id="expanded">
@@ -57,17 +54,15 @@ function myFunction() {
       </div>
       <div id="search">
         <center>
-        <button onclick="myFunction()" style="border: none;text-align: center;font-size: 16px;width:100%;height:30px;border-radius: 6px;" onclick="back()">Create New Chat</button>
-        <div id="myDIV">
-            <form action='/chat/create_chat_view/' method='POST'> 
+        <button id="togglebtn" style="border: none;text-align: center;font-size: 16px;width:100%;height:30px;border-radius: 6px;">New Message</button>
+            <form style="display:none" action='/chat/create_chat_view/' method='POST'> 
             {% csrf_token %}
-            <input readonly onfocus="this.blur" type="hidden" name="participants" maxlength="200" required id="id_participants" value="{{ user.username }},"><br>
+            <input readonly onfocus="this.blur" name="participants" maxlength="200" required id="id_participants" value="{{ user.username }},"><br>
             {% for user in users %}
-            <div class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;">{{ user }}</div><br>
+            <dev class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;">{{ user }}</dev><br>
             {% endfor %}
             <button style="border: none;text-align: center;font-size: 16px;width:50%;height:30px;border-radius: 6px;" onclick="back()">Chat</button>
             </form>
-        </div>
       </center>
       </div>
       <div id="contacts">
@@ -77,7 +72,7 @@ function myFunction() {
           <li class="contact">
             <div class="wrap">
               <span class="contact-status online"></span>
-              <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
+              <img src="https://clipartart.com/images/default-profile-picture-clipart-3.jpg" alt="" />
               <a href="/{{ id }}/"><div class="meta">
                <p class="name" style="text-transform: capitalize;font-size: 18px">{{ name }}</p>
                 <p class="preview"></p>
@@ -89,6 +84,7 @@ function myFunction() {
         </ul>
       </div>
       <div id="bottom-bar">
+        <a href="/accounts/logout/">Logout</a>
       </div>
     </div>
     <div class="content">
@@ -172,7 +168,7 @@ function myFunction() {
       var imgTag = document.createElement('img');
       var pTag = document.createElement('p');
       pTag.textContent = data.content;
-      imgTag.src = 'http://emilcarlsson.se/assets/mikeross.png';
+      imgTag.src = 'https://clipartart.com/images/default-profile-picture-clipart-3.jpg';
       
       if (author === username) {
         msgListTag.className = 'replies';

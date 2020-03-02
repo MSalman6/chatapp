@@ -109,8 +109,9 @@ def index(request):
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
-    creators = ChatCreator.objects.all()
-    contact_id = Contact.objects.get(user=user_object[0].id)
+    # creators = ChatCreator.objects.all()
+    # contact_id = Contact.objects.get(user=user_object[0].id)
+    
     #Return Chats in which User is a participant as 
     chat = Chat.objects.all()
     user_chats = []
@@ -157,8 +158,9 @@ def room(request, chatId):
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
-    creators = ChatCreator.objects.all()
-    contact_id = Contact.objects.get(user=user_object[0].id)
+    # creators = ChatCreator.objects.all()
+    # contact_id = Contact.objects.get(user=user_object[0].id)
+
     #Return Chats in which User is a participant as 
     chat = Chat.objects.all()
     user_chats = []

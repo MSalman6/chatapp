@@ -140,4 +140,6 @@ STATICFILES_DIRS = [
 ]
 
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/chat'
+LOGIN_REDIRECT_URL = '/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
