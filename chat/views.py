@@ -11,6 +11,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     CreateAPIView,
     DestroyAPIView,
+    UpdateAPIView,
     UpdateAPIView
 )
 from chat.models import Chat, Contact, ChatCreator
@@ -49,6 +50,26 @@ def create_contact(username):
     return Contact.objects.create(user=user)
 
 # Views
+@api_view(['POST'])
+def test_update(request):
+    inp_participants = request.data['participants']
+    inp_list = list(inp_participants.split(","))
+    participants = []
+    for i in range(len(inp_list)):
+        user_id = User.objects.get(username=inp_list[i])
+        participants.append(user_id.pk)
+    chatId = request.data['id']
+    print(participants)
+    content = {
+    'participants': participants
+    }
+    url = 'http://127.0.0.1:8000/chat/{}/update/'.format(chatId)
+    result = requests.put(url, data=content)
+    redirect_id = result.json()["id"]
+    print(result.json())
+    return redirect('/{}'.format(redirect_id))
+
+
 @api_view(['POST'])
 def create_chat_view(request):
     #check if a chat with same participants already exists
@@ -108,9 +129,7 @@ def index(request):
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
-    # creators = ChatCreator.objects.all()
-    # contact_id = Contact.objects.get(user=user_object[0].id)
-    
+
     #Return Chats in which User is a participant as 
     chat = Chat.objects.all()
     user_chats = []
@@ -140,20 +159,18 @@ def index(request):
         elif len(names_list[i]) > 2:
             new_list.append([])  
             for k in range(len(names_list[i])):
-                
                 new_list[len(new_list)-1].append(names_list[i][k])
-            ok_list.append(new_list)
-
-    for k in range(len(new_list)):
+                
+    for l in range(len(new_list)):
         str1 = ""
-        t = new_list[k]
-        for i in range(len(new_list[k])):
-            str1+=(str(new_list[k][i])+",")
-            
+        t = new_list[l]
+        for i in range(len(new_list[l])):
+            str1+=(str(new_list[l][i])+",")
+        
         chat_name.append(str1[:-1])
     ###############################################
     form = forms.CreateContactForm()
-    return render(request, 'chat/room.html', {
+    return render(request, 'chat/index.html', {
         'username': mark_safe(json.dumps(request.user.username)),
         'users': User.objects.all(),
         'contacts': Contact.objects.all(),
@@ -161,15 +178,11 @@ def index(request):
         'chats' : zip(chat_name,user_chats)
         })
 
-
-# TODO: Return Chats in which User is a participant
 @login_required
 def room(request, chatId):
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
-    # creators = ChatCreator.objects.all()
-    # contact_id = Contact.objects.get(user=user_object[0].id)
 
     #Return Chats in which User is a participant as 
     chat = Chat.objects.all()
@@ -200,16 +213,14 @@ def room(request, chatId):
         elif len(names_list[i]) > 2:
             new_list.append([])  
             for k in range(len(names_list[i])):
-                
                 new_list[len(new_list)-1].append(names_list[i][k])
-            ok_list.append(new_list)
 
-    for k in range(len(new_list)):
+    for l in range(len(new_list)):
         str1 = ""
-        t = new_list[k]
-        for i in range(len(new_list[k])):
-            str1+=(str(new_list[k][i])+",")
-            
+        t = new_list[l]
+        for i in range(len(new_list[l])):
+            str1+=(str(new_list[l][i])+",")
+        
         chat_name.append(str1[:-1])
     ###############################################
     form = forms.CreateContactForm()
@@ -251,7 +262,7 @@ class ChatCreateView(CreateAPIView):
 class ChatUpdateView(UpdateAPIView):
     queryset = Chat.objects.all()
     serializer_class = ChatSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.AllowAny, )
 
 
 class ChatDeleteView(DestroyAPIView):

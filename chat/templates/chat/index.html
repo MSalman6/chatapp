@@ -98,38 +98,6 @@
     <div class="content">
       <div class="contact-profile">
         <div class="social-media">
-                                    <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-                          Add participants
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                          <div class="modal-dialog modal-dialog-centered" role="document" style="position:absolute;">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLongTitle">Add participants</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                <form method="POST" action="/chat/test_update">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id" value={{ chatId }}>
-                                    <input type="text" id="participants1" name="participants"><br>
-                                    {% for user in users %}
-                                    <div class="btn" style="text-transform: capitalize;" onclick="add_part('{{ user }}')" style="text-transform: capitalize;">{{ user }}</div>
-                                    {% endfor %}
-                                    <div class="modal-footer">
-                                    <br><button class="btn btn-primary" onclick="back()">Add</button>
-                                </form>
-                               </div>
-                              
-                              </div>
-                            </div>
-                          </div>
-                        </div>
         </div>
       </div>
       <div class="messages">

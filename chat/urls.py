@@ -6,13 +6,15 @@ from .views import (
     ChatCreateView,
     ChatUpdateView,
     ChatDeleteView,
-    create_chat_view
+    create_chat_view,
+    test_update
 )
 
 app_name = 'chat'
 
 urlpatterns = [
     path('', ChatListView.as_view()),
+    path('test_update', test_update),
     path('create/', ChatCreateView.as_view(), name='create'),
     path('create_chat_view/', create_chat_view, name='create_chat'),
     path('<pk>', ChatDetailView.as_view()),
