@@ -19,9 +19,12 @@ from .serializers import ChatSerializer
 from .consumers import ChatConsumer
 from . import forms
 from rest_framework.decorators import api_view
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 import collections
+from rest_framework.response import Response
+from django.db.models import Q
+from django.forms.models import model_to_dict
 
 User = get_user_model()
 
@@ -49,9 +52,11 @@ def create_contact(username):
     user = User.objects.get(username=username)
     return Contact.objects.create(user=user)
 
+
+
 # Views
 @api_view(['POST'])
-def test_update(request):
+def update(request):
     inp_participants = request.data['participants']
     inp_list = list(inp_participants.split(","))
     participants = []
@@ -68,6 +73,24 @@ def test_update(request):
     redirect_id = result.json()["id"]
     print(result.json())
     return redirect('/{}'.format(redirect_id))
+
+def profile_view(request):
+    return render(request, 'chat/profile.html')
+
+
+@api_view(['POST'])
+def searching(request):
+    dictionary = dict() 
+    print(request.data)
+    inp = request.data['search-input']
+    data = User.objects.filter(Q(username__icontains=inp))
+    search_list = []
+    for i in range(len(data)):
+        search_list.append(data[i])
+        dictionary[data[i].id] = data[i].username
+    # # lol = model_to_dict(search_list[0])
+    # print(lol)
+    return JsonResponse(dictionary, safe=False)
 
 
 @api_view(['POST'])

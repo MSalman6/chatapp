@@ -15,8 +15,9 @@
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <link rel="stylesheet" href="{% static 'style.css' %}" />
     <link rel="shortcut icon" type="image/png" href="//static/faviscon.ico"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
       <script>
-        function back() 
+        function back()
          {
             var value = document.getElementById("participants1").value;
             document.getElementById("participants1").value = value.substr(0, value.length - 1);
@@ -42,6 +43,29 @@
         $("form").toggle();
       });
     });
+    $(document).on('submit', '#search-form', function(e){
+              e.preventDefault();
+
+                        $.ajax({
+                         type: "POST",
+                         url: "/chat/searching",
+                         data:{
+                          'search-input': document.getElementById("search-input").value,
+                          'csrfmiddlewaretoken': 'XFJcHfmqlFpRfL3zg9zLJVFbd5tl5a5RBTJMtkhi4GmDp4g6bKAVyggNb3DUuHea'},
+                     }).success(function(data){
+                      for(var key in data) {
+                        var value = data[key];
+                        var msgListTag = document.createElement('ul');
+                        var pTag = document.createElement('div');
+                        pTag.textContent = value;
+                        pTag.url = '127.0.0.1:8000/'
+                        msgListTag.appendChild(pTag);
+                        document.querySelector('#msg').appendChild(msgListTag);
+                       console.log(data)
+                     }}).fail(function(){
+                       $('#msg').html('Syntax Error');
+                     });
+                  });
   </script>
   </head>
 
@@ -62,7 +86,7 @@
       </div>
       <div id="search">
         <center>
-        <button id="togglebtn" style="border: none;text-align: center;font-size: 16px;width:100%;height:30px;border-radius: 6px;">New Message</button>
+        <button id="togglebtn" style="border: none;text-align: center;font-size: 16px;width:95%;height:30px;border-radius: 6px;">New Message</button>
             <form style="display:none" action='/chat/create_chat_view/' method='POST'> 
             {% csrf_token %}
             <input readonly onfocus="this.blur" name="participants" style="text-transform: capitalize;" maxlength="200" required id="id_participants" value="{{ user.username }}"><br>
@@ -73,6 +97,16 @@
             </form>
       </center>
       </div>
+          <div id="search">
+      <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+      <form method="POST" id="search-form">
+        {% csrf_token %}
+      <input id="search-input" type="text" name="search-input"/>
+      <button type="submit">Search</button>
+    </form>
+    <div id="msg" style="text-transform: capitalize;">
+    </div>
+    </div>
       <div id="contacts">
         <ul>
           <h3>Chats</h3>
@@ -114,10 +148,10 @@
                                 </button>
                               </div>
                               <div class="modal-body">
-                                <form method="POST" action="/chat/test_update">
+                                <form method="POST" action="/chat/update">
                                     {% csrf_token %}
                                     <input type="hidden" name="id" value={{ chatId }}>
-                                    <input type="text" id="participants1" name="participants"><br>
+                                    <input readonly type="text" id="participants1" name="participants" style="width: 100%;height:20px;text-transform: capitalize"><br>
                                     {% for user in users %}
                                     <div class="btn" style="text-transform: capitalize;" onclick="add_part('{{ user }}')" style="text-transform: capitalize;">{{ user }}</div>
                                     {% endfor %}
@@ -153,7 +187,7 @@
 <script>
     var username = {{ username }};
     var chatId = {{ chatId }}
-    console.log(chatId)
+    document.getElementById("search-input").value
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
         '/ws/chat/' + chatId + '/');

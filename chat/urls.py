@@ -7,14 +7,16 @@ from .views import (
     ChatUpdateView,
     ChatDeleteView,
     create_chat_view,
-    test_update
+    update,
+    searching
 )
 
 app_name = 'chat'
 
 urlpatterns = [
     path('', ChatListView.as_view()),
-    path('test_update', test_update),
+    path('update', update),
+    path('searching', searching),
     path('create/', ChatCreateView.as_view(), name='create'),
     path('create_chat_view/', create_chat_view, name='create_chat'),
     path('<pk>', ChatDetailView.as_view()),
