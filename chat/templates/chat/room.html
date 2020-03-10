@@ -92,8 +92,8 @@
             <form style="display:none" action='/chat/create_chat_view/' method='POST'> 
             {% csrf_token %}
             <input readonly onfocus="this.blur" name="participants" style="text-transform: capitalize;" maxlength="200" required id="id_participants" value="{{ user.username }}"><br>
-            {% for user in users %}
-            <dev class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;">{{ user }}</dev><br>
+            {% for friend in friends %}
+            <dev class="btn" value="{{ user }}" onclick="display('{{ friend }}')" style="text-transform: capitalize;">{{ friend }}</dev><br>
             {% endfor %}
             <button style="border: none;text-align: center;font-size: 16px;width:50%;height:30px;border-radius: 6px;">Chat</button>
             </form>
@@ -110,6 +110,10 @@
     </div>
     </div>
       <div id="contacts">
+        <h3>Friends</h3>
+        {% for friend in friends %}
+        <dev class="btn" value="{{ user }}" style="text-transform: capitalize;">{{ friend }}</dev><br>
+        {% endfor %}
         <ul>
           <h3>Chats</h3>
           {% for name, id in chats %} 
@@ -134,6 +138,7 @@
     <div class="content">
       <div class="contact-profile">
         <div class="social-media">
+          <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
                                     <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
                           Add participants
@@ -154,8 +159,8 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="id" value={{ chatId }}>
                                     <input readonly type="text" id="participants1" name="participants" style="width: 100%;height:20px;text-transform: capitalize"><br>
-                                    {% for user in users %}
-                                    <div class="btn" style="text-transform: capitalize;" onclick="add_part('{{ user }}')" style="text-transform: capitalize;">{{ user }}</div>
+                                    {% for friend in friends %}
+                                    <div class="btn" style="text-transform: capitalize;" onclick="add_part('{{ friend }}')" style="text-transform: capitalize;">{{ friend }}</div>
                                     {% endfor %}
                                     <div class="modal-footer">
                                     <br><button class="btn btn-primary" onclick="back()">Add</button>
@@ -166,7 +171,7 @@
                             </div>
                           </div>
                         </div>
-        </div>
+                      </div>
       </div>
       <div class="messages">
         <ul id="chat-log">

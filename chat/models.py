@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.conf import settings
+
 
 User = get_user_model()
 
@@ -36,3 +38,12 @@ class ChatCreator(models.Model):
 
     def __str__(self):
         return self.creator.username
+
+
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_user', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='to_user', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True) # set when created 
+
+    def __str__(self):
+        return "From {}, to {}".format(self.from_user.username, self.to_user.username)

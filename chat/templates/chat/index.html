@@ -15,8 +15,9 @@
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <link rel="stylesheet" href="{% static 'style.css' %}" />
     <link rel="shortcut icon" type="image/png" href="//static/faviscon.ico"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
       <script>
-        function back() 
+        function back()
          {
             var value = document.getElementById("participants1").value;
             document.getElementById("participants1").value = value.substr(0, value.length - 1);
@@ -29,19 +30,36 @@
           document.getElementById("id_participants").value=document.getElementById("id_participants").value
         }
      }
-         function add_part(val)
-     {
-        if (document.getElementById("participants1").value.indexOf(val) == -1){
-         document.getElementById("participants1").value+=(val+",")
-        } else {
-          document.getElementById("participants1").value=document.getElementById("participants1").value
-        }
-     }
     $(document).ready(function(){
       $("#togglebtn").click(function(){
         $("form").toggle();
       });
     });
+    $(document).on('submit', '#search-form', function(e){
+              e.preventDefault();
+
+                        $.ajax({
+                         type: "POST",
+                         url: "/chat/searching",
+                         data:{
+                          'search-input': document.getElementById("search-input").value,
+                          'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                     }).success(function(data){
+                      for(var key in data) {
+                        var value = data[key];
+                        var msgListTag = document.createElement('ul');
+                        var aTag = document.createElement('a');
+                        var UrL = 'http://127.0.0.1:8000/accounts/2/profile/'
+                        aTag.textContent = value;
+                        aTag.href = UrL.substr(0,30)+'/'+key+'/'+'profile/'
+                        msgListTag.appendChild(aTag);
+                        document.querySelector('#msg').appendChild(msgListTag);
+                       console.log(data)
+                     }}).fail(function(){
+                       $('#msg').html('Syntax Error');
+                     });
+                  });
   </script>
   </head>
 
@@ -62,18 +80,32 @@
       </div>
       <div id="search">
         <center>
-        <button id="togglebtn" style="border: none;text-align: center;font-size: 16px;width:100%;height:30px;border-radius: 6px;">New Message</button>
+        <button id="togglebtn" style="border: none;text-align: center;font-size: 16px;width:95%;height:30px;border-radius: 6px;">New Message</button>
             <form style="display:none" action='/chat/create_chat_view/' method='POST'> 
             {% csrf_token %}
             <input readonly onfocus="this.blur" name="participants" style="text-transform: capitalize;" maxlength="200" required id="id_participants" value="{{ user.username }}"><br>
-            {% for user in users %}
-            <dev class="btn" value="{{ user }}" onclick="display('{{ user }}')" style="text-transform: capitalize;">{{ user }}</dev><br>
+            {% for friend in friends %}
+            <dev class="btn" value="{{ user }}" onclick="display('{{ friend }}')" style="text-transform: capitalize;">{{ friend }}</dev><br>
             {% endfor %}
             <button style="border: none;text-align: center;font-size: 16px;width:50%;height:30px;border-radius: 6px;">Chat</button>
             </form>
       </center>
       </div>
+          <div id="search">
+      <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+      <form method="POST" id="search-form">
+        {% csrf_token %}
+      <input id="search-input" type="text" name="search-input"/>
+      <button type="submit">Search</button>
+    </form>
+    <div id="msg" style="text-transform: capitalize;font-size:20px">
+    </div>
+    </div>
       <div id="contacts">
+        <h3>Friends</h3>
+        {% for friend in friends %}
+        <dev class="btn" value="{{ user }}" style="text-transform: capitalize;">{{ friend }}</dev><br>
+        {% endfor %}
         <ul>
           <h3>Chats</h3>
           {% for name, id in chats %} 
@@ -98,6 +130,7 @@
     <div class="content">
       <div class="contact-profile">
         <div class="social-media">
+          <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
         </div>
       </div>
       <div class="messages">
@@ -121,7 +154,7 @@
 <script>
     var username = {{ username }};
     var chatId = {{ chatId }}
-    console.log(chatId)
+    document.getElementById("search-input").value
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
         '/ws/chat/' + chatId + '/');

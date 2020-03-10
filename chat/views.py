@@ -19,12 +19,13 @@ from .serializers import ChatSerializer
 from .consumers import ChatConsumer
 from . import forms
 from rest_framework.decorators import api_view
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 import collections
 from rest_framework.response import Response
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from .models import FriendRequest
 
 User = get_user_model()
 
@@ -53,6 +54,45 @@ def create_contact(username):
     return Contact.objects.create(user=user)
 
 
+#Add friend Views
+
+def send_friend_request(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    frequest, created = FriendRequest.objects.get_or_create(
+      from_user=request.user,
+      to_user=user)
+    url = '/accounts/{}/profile/'.format(pk)
+    return HttpResponseRedirect(url)
+
+def cancel_friend_request(request, pk):
+    user = get_object_or_404(User, id=pk)
+    frequest = FriendRequest.objects.filter(
+        from_user=request.user,
+        to_user=user).first()
+    frequest.delete()
+    url = '/accounts/{}/profile/'.format(pk)
+    return HttpResponseRedirect(url)
+
+def accept_friend_request(request, pk):
+    user1_contact = Contact.objects.filter(pk=request.user.pk).first()
+    user2_contact = Contact.objects.filter(pk=pk).first()
+    from_user = get_object_or_404(User, pk=pk)
+    frequest = FriendRequest.objects.filter(from_user=from_user, to_user=request.user).first()
+    user1 = frequest.to_user
+    user2 = from_user
+    user1_contact.friends.add(user2_contact)
+    user2_contact.friends.add(user1_contact)
+    frequest.delete()
+    url = '/accounts/{}/profile/'.format(request.user.pk)
+    return HttpResponseRedirect(url)
+
+def delete_friend_request(request, pk):
+    from_user = get_object_or_404(User, id=pk)
+    frequest = FriendRequest.objects.filter(from_user=from_user, to_user=request.user).first()
+    frequest.delete()
+    url = '/accounts/{}/profile/'.format(request.user.pk)
+    return HttpResponseRedirect(url)
+
 
 # Views
 @api_view(['POST'])
@@ -75,11 +115,32 @@ def update(request):
     return redirect('/{}'.format(redirect_id))
 
 def profile_view(request, pk):
-    user = User.objects.filter(pk=pk)
+    p = Contact.objects.filter(user_id=pk).first()
+    u = p.user
+    sent_friend_requests = FriendRequest.objects.filter(from_user=p.user)
+    rec_friend_requests = FriendRequest.objects.filter(to_user=p.user)
+    friends = p.friends.all()
+
+    # is this user our friend
+    button_status = 'friend'
+
+    if p not in friends:
+        button_status = 'not_friend'
+
+        # if we have sent him a friend request
+        if len(FriendRequest.objects.filter(
+            from_user=request.user).filter(to_user=p.user)) == 1:
+                button_status = 'friend_request_sent'
+
     context = {
-    'user': user.first()
+        'u': u,
+        'button_status': button_status,
+        'friends_list': friends,
+        'sent_friend_requests': sent_friend_requests,
+        'rec_friend_requests': rec_friend_requests
     }
-    return render(request, 'chat/profile.html', context)
+
+    return render(request, "chat/profile.html", context)
 
 
 @api_view(['POST'])
@@ -150,6 +211,8 @@ def create_chat_view(request):
 
 @login_required
 def index(request):
+    user_contact = Contact.objects.filter(user_id=request.user.pk).first()
+    friends = user_contact.friends.all()
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
@@ -195,6 +258,7 @@ def index(request):
     ###############################################
     form = forms.CreateContactForm()
     return render(request, 'chat/index.html', {
+        'friends': friends,
         'username': mark_safe(json.dumps(request.user.username)),
         'users': User.objects.all(),
         'contacts': Contact.objects.all(),
@@ -204,6 +268,8 @@ def index(request):
 
 @login_required
 def room(request, chatId):
+    user_contact = Contact.objects.filter(user_id=request.user.pk).first()
+    friends = user_contact.friends.all()
     # for displaying stuff from backend to frontend
     user_name = request.user.username
     user_object = User.objects.filter(username=user_name)
@@ -249,6 +315,7 @@ def room(request, chatId):
     ###############################################
     form = forms.CreateContactForm()
     return render(request, 'chat/room.html', {
+        'friends': friends,
         'chatId': mark_safe(json.dumps(chatId)),
         'username': mark_safe(json.dumps(request.user.username)),
         'users': User.objects.all(),
