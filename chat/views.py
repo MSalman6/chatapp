@@ -74,8 +74,12 @@ def update(request):
     print(result.json())
     return redirect('/{}'.format(redirect_id))
 
-def profile_view(request):
-    return render(request, 'chat/profile.html')
+def profile_view(request, pk):
+    user = User.objects.filter(pk=pk)
+    context = {
+    'user': user.first()
+    }
+    return render(request, 'chat/profile.html', context)
 
 
 @api_view(['POST'])
@@ -83,13 +87,10 @@ def searching(request):
     dictionary = dict() 
     print(request.data)
     inp = request.data['search-input']
-    data = User.objects.filter(Q(username__icontains=inp))
-    search_list = []
+    data = User.objects.filter(Q(username__icontains=inp)).values('username', 'pk')
     for i in range(len(data)):
-        search_list.append(data[i])
-        dictionary[data[i].id] = data[i].username
-    # # lol = model_to_dict(search_list[0])
-    # print(lol)
+        dictionary[data[i]['pk']] = data[i]['username']
+    print(dictionary)
     return JsonResponse(dictionary, safe=False)
 
 

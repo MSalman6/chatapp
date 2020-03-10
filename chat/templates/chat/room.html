@@ -51,15 +51,17 @@
                          url: "/chat/searching",
                          data:{
                           'search-input': document.getElementById("search-input").value,
-                          'csrfmiddlewaretoken': 'XFJcHfmqlFpRfL3zg9zLJVFbd5tl5a5RBTJMtkhi4GmDp4g6bKAVyggNb3DUuHea'},
+                          'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
                      }).success(function(data){
                       for(var key in data) {
                         var value = data[key];
                         var msgListTag = document.createElement('ul');
-                        var pTag = document.createElement('div');
-                        pTag.textContent = value;
-                        pTag.url = '127.0.0.1:8000/'
-                        msgListTag.appendChild(pTag);
+                        var aTag = document.createElement('a');
+                        var UrL = 'http://127.0.0.1:8000/accounts/2/profile/'
+                        aTag.textContent = value;
+                        aTag.href = UrL.substr(0,30)+'/'+key+'/'+'profile/'
+                        msgListTag.appendChild(aTag);
                         document.querySelector('#msg').appendChild(msgListTag);
                        console.log(data)
                      }}).fail(function(){
@@ -104,7 +106,7 @@
       <input id="search-input" type="text" name="search-input"/>
       <button type="submit">Search</button>
     </form>
-    <div id="msg" style="text-transform: capitalize;">
+    <div id="msg" style="text-transform: capitalize;font-size:20px">
     </div>
     </div>
       <div id="contacts">

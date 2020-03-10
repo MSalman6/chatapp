@@ -23,6 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('chat/', include('chat.urls', namespace='chatapp')),
     path('accounts/', include('allauth.urls')),
-    path('accounts/<str:username>/profile/', profile_view),
+    path('accounts/<str:pk>/profile/', profile_view),
     path('<str:chatId>/', room),
 ]
