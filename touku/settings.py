@@ -78,9 +78,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'touku.wsgi.application'
 ASGI_APPLICATION = 'touku.routing.application'
 
-DJANGO_NOTIFICATIONS_CONFIG = {
-'USE_JSONFIELD': True
-}
 
 CHANNEL_LAYERS = {
     'default': {

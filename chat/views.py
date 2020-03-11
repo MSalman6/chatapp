@@ -81,7 +81,6 @@ def accept_friend_request(request, pk):
     user1 = frequest.to_user
     user2 = from_user
     user1_contact.friends.add(user2_contact)
-    user2_contact.friends.add(user1_contact)
     frequest.delete()
     url = '/accounts/{}/profile/'.format(request.user.pk)
     return HttpResponseRedirect(url)
@@ -93,6 +92,12 @@ def delete_friend_request(request, pk):
     url = '/accounts/{}/profile/'.format(request.user.pk)
     return HttpResponseRedirect(url)
 
+def remove_friend(request, pk):
+    user1 = Contact.objects.filter(pk=request.user.pk).first()
+    user2 = User.objects.filter(pk=pk).first()
+    user1.friends.remove(user2.pk)
+    url = '/accounts/{}/profile/'.format(pk)
+    return HttpResponseRedirect(url)
 
 # Views
 @api_view(['POST'])

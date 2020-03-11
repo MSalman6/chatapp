@@ -12,7 +12,8 @@ from .views import (
     send_friend_request,
     cancel_friend_request,
     accept_friend_request,
-    delete_friend_request
+    delete_friend_request,
+    remove_friend
 )
 
 app_name = 'chat'
@@ -30,4 +31,5 @@ urlpatterns = [
     path('friend-request/cancel/<int:pk>/', cancel_friend_request),
     path('friend-request/accept/<int:pk>/', accept_friend_request),
     path('friend-request/delete/<int:pk>/', delete_friend_request),
+    path('remove-friend/<int:pk>/', remove_friend)
 ]

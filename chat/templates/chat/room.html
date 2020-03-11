@@ -132,13 +132,12 @@
         </ul>
       </div>
       <div id="bottom-bar">
-        <a href="/accounts/logout/">Logout</a>
       </div>
     </div>
     <div class="content">
       <div class="contact-profile">
+         <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
         <div class="social-media">
-          <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
                                     <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
                           Add participants
@@ -188,9 +187,6 @@
       </div>
     </div>
   </div>
-
-<script src="{% static 'main.js' %}"></script>
-<script src="{% static 'reconnecting-websocket.js' %}"></script>
 <script>
     var username = {{ username }};
     var chatId = {{ chatId }}
