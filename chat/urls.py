@@ -13,13 +13,15 @@ from .views import (
     cancel_friend_request,
     accept_friend_request,
     delete_friend_request,
-    remove_friend
+    remove_friend,
+    test
 )
 
 app_name = 'chat'
 
 urlpatterns = [
     path('', ChatListView.as_view()),
+    path('users', test),
     path('update', update),
     path('searching', searching),
     path('create/', ChatCreateView.as_view(), name='create'),

@@ -9,6 +9,7 @@ User = get_user_model()
 class Contact(models.Model):
     user = models.ForeignKey(User, related_name='friends', on_delete=models.CASCADE)
     friends = models.ManyToManyField('self', blank=True)
+    status = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

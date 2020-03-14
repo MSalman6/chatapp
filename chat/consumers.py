@@ -7,12 +7,17 @@ import requests
 from django.shortcuts import get_object_or_404
 from .serializers import ChatSerializer
 import chat.views
+from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
 
 class ChatConsumer(WebsocketConsumer):
 
+    def update_user_status(self, user,status):
+        return Contact.objects.filter(user_id=user.pk).update(status=status)
+    
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
@@ -21,12 +26,19 @@ class ChatConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.accept()
+        user = self.scope['user']
+        if user.is_authenticated:
+            self.update_user_status(user,True)
+            self.send_status()  
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
+        user = self.scope['user']
+        self.update_user_status(user,False)
+        self.send_status()  
 
     def receive(self, text_data):
         data = json.loads(text_data)
@@ -90,3 +102,18 @@ class ChatConsumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         self.send(text_data=json.dumps(message))
+
+    def send_status(self):
+        users = User.objects.all()
+        users1 = render_to_string("chat/profile.html",{'users':users})
+        async_to_sync(self.channel_layer.group_send)(
+            'users',
+            {
+                "type": "user_update",
+                "event": "Change Status",
+                "user": users1
+            }
+        )
+
+    def user_update(self,event):
+        self.send_json(event)

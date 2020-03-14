@@ -119,6 +119,17 @@ def update(request):
     print(result.json())
     return redirect('/{}'.format(redirect_id))
 
+def test(request):
+    users = User.objects.all()
+    status = []
+    for i in range(len(users)):
+        contact = Contact.objects.filter(user_id=users[i]).first()
+        status.append(contact.status)
+    context = {
+    'lol': zip(users, status)
+    }
+    return render(request, 'chat/users.html', context)
+
 def profile_view(request, pk):
     p = Contact.objects.filter(user_id=pk).first()
     u = p.user
@@ -138,6 +149,7 @@ def profile_view(request, pk):
                 button_status = 'friend_request_sent'
 
     context = {
+        'contact': p,
         'u': u,
         'button_status': button_status,
         'friends_list': friends,
@@ -151,7 +163,6 @@ def profile_view(request, pk):
 @api_view(['POST'])
 def searching(request):
     dictionary = dict() 
-    print(request.data)
     inp = request.data['search-input']
     data = User.objects.filter(Q(username__icontains=inp)).values('username', 'pk')
     for i in range(len(data)):

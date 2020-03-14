@@ -2,6 +2,11 @@
 	<div class="container text-center">
 		<span><a href="/">Home</a></span><br>
 		{% if request.user == u %}
+		{% if user.is_authenticated %}
+			{% if contact.status %}
+				<i class="fa fa-circle" style="color:#43cc39">Online</i>
+			{% endif %}
+		{% endif %}
 		<div style="text-transform: capitalize;font-size: 20px">{{ user.username }}</div>
 
 			<h1>Friends</h1>
