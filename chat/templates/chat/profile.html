@@ -1,21 +1,74 @@
-<center>
-	<div class="container text-center">
+<!DOCTYPE html>
+<html>
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
+    <script src="https://use.typekit.net/hoy3lrg.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+	<script>
+    $(document).on('submit', '#search-form', function(e){
+              e.preventDefault();
+
+                        $.ajax({
+                         type: "POST",
+                         url: "/chat/searching",
+                         data:{
+                          'search-input': document.getElementById("search-input").value,
+                          'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                     }).success(function(data){
+                      for(var key in data) {
+                        var value = data[key];
+                        var msgListTag = document.createElement('ul');
+                        var aTag = document.createElement('a');
+                        var UrL = 'http://127.0.0.1:8000/accounts/2/profile/'
+                        aTag.textContent = value;
+                        aTag.href = UrL.substr(0,30)+'/'+key+'/'+'profile/'
+                        msgListTag.appendChild(aTag);
+                        document.querySelector('#msg').appendChild(msgListTag);
+                       console.log(data)
+                     }}).fail(function(){
+                       $('#msg').html('Syntax Error');
+                     });
+                  });
+    </script>
+</head>
+<body>
+	<center>
 		<span><a href="/">Home</a></span><br>
-		{% if request.user == u %}
-		{% if user.is_authenticated %}
-			{% if contact.status %}
-				<i class="fa fa-circle" style="color:#43cc39">Online</i>
-			{% endif %}
-		{% endif %}
-		<div style="text-transform: capitalize;font-size: 20px">{{ user.username }}</div>
+	<div style="height:100%;width:300px">
+			<form>
+				<fieldset>
+				<legend>Info:</legend>
+				<div style="text-transform: capitalize;font-size: 20px">Name: {{ contact.user.username }}</div>
+				Email: {{ contact.user.email }}<br>
+				Status: {% if request.user == u %}
+				{% if user.is_authenticated %}
+					{% if contact.status %}
+						<i class="fa fa-circle" style="color:#43cc39">Online</i>
+					{% else %}
+						<i class="fa fa-circle">Offline</i>
+					{% endif %}
+				{% endif %}
+				 </fieldset>
+			</form>
 
 			<h1>Friends</h1>
 			
 			{% for friend in friends_list %}
-			<a href="http://127.0.0.1:8000/accounts/{{ friend.user.id }}/profile/">{{ friend.user.username }}</a><small><a class='btn btn-warning' href="/chat/remove-friend/{{ friend.user.id }}/">Remove friend</a></small>
+			<a href="http://127.0.0.1:8000/accounts/{{ friend.user.id }}/profile/">{{ friend.user.username }}</a><br><small><a class='btn btn-warning' href="/chat/remove-friend/{{ friend.user.id }}/">Remove friend</a></small>
 			{% endfor %}
 			<hr>
-			<h2>Sent Friend requests</h2>
+			<h2>Sent Requests:</h2>
 			<ul>
 			{% for s_request in sent_friend_requests %}
 				<li>{{ s_request.to_user.username }}</li>
@@ -40,4 +93,16 @@
 		{% endif %}
 
 	</div>
+	<hr>
+	<h2>Search User:</h2>
+      <form method="POST" id="search-form">
+        {% csrf_token %}
+      <input id="search-input" type="text" name="search-input"/>
+      <button type="submit">Search</button>
+    </form>
+    <div id="msg" style="text-transform: capitalize;font-size:20px">
+    </div>
+    </div>
 </center>
+</body>
+</html>

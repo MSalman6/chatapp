@@ -109,14 +109,12 @@ def update(request):
         user_id = User.objects.get(username=inp_list[i])
         participants.append(user_id.pk)
     chatId = request.data['id']
-    print(participants)
     content = {
     'participants': participants
     }
     url = 'http://127.0.0.1:8000/chat/{}/update/'.format(chatId)
     result = requests.put(url, data=content)
     redirect_id = result.json()["id"]
-    print(result.json())
     return redirect('/{}'.format(redirect_id))
 
 def test(request):
@@ -130,6 +128,7 @@ def test(request):
     }
     return render(request, 'chat/users.html', context)
 
+@login_required
 def profile_view(request, pk):
     p = Contact.objects.filter(user_id=pk).first()
     u = p.user
@@ -167,7 +166,6 @@ def searching(request):
     data = User.objects.filter(Q(username__icontains=inp)).values('username', 'pk')
     for i in range(len(data)):
         dictionary[data[i]['pk']] = data[i]['username']
-    print(dictionary)
     return JsonResponse(dictionary, safe=False)
 
 
@@ -228,6 +226,11 @@ def create_chat_view(request):
 @login_required
 def index(request):
     user_contact = Contact.objects.filter(user_id=request.user.pk).first()
+    status = []
+    users = User.objects.all()
+    for i in range(len(users)):
+        contact = Contact.objects.filter(user_id=users[i]).first()
+        status.append(contact.status)
     friends = user_contact.friends.all()
     # for displaying stuff from backend to frontend
     user_name = request.user.username
@@ -279,12 +282,17 @@ def index(request):
         'users': User.objects.all(),
         'contacts': Contact.objects.all(),
         'form': form,
-        'chats' : zip(chat_name,user_chats)
+        'chats' : zip(chat_name,user_chats,status)
         })
 
 @login_required
 def room(request, chatId):
     user_contact = Contact.objects.filter(user_id=request.user.pk).first()
+    status = []
+    users = User.objects.all()
+    for i in range(len(users)):
+        contact = Contact.objects.filter(user_id=users[i]).first()
+        status.append(contact.status)
     friends = user_contact.friends.all()
     # for displaying stuff from backend to frontend
     user_name = request.user.username
@@ -337,7 +345,7 @@ def room(request, chatId):
         'users': User.objects.all(),
         'contacts': Contact.objects.all(),
         'form': form,
-        'chats' : zip(chat_name,user_chats)
+        'chats' : zip(chat_name,user_chats, status)
         })
 
 

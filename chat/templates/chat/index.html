@@ -91,16 +91,6 @@
             </form>
       </center>
       </div>
-          <div id="search">
-      <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
-      <form method="POST" id="search-form">
-        {% csrf_token %}
-      <input id="search-input" type="text" name="search-input"/>
-      <button type="submit">Search</button>
-    </form>
-    <div id="msg" style="text-transform: capitalize;font-size:20px">
-    </div>
-    </div>
       <div id="contacts">
         <h3>Friends</h3>
         {% for friend in friends %}
@@ -108,10 +98,12 @@
         {% endfor %}
         <ul>
           <h3>Chats</h3>
-          {% for name, id in chats %} 
+          {% for name, id, stat in chats %} 
           <li class="contact">
             <div class="wrap">
+              {% if stat == True %}
               <span class="contact-status online"></span>
+              {% endif %}
               <img src="https://clipartart.com/images/default-profile-picture-clipart-3.jpg" alt="" />
               <a href="/{{ id }}/"><div class="meta">
                <p class="name" style="text-transform: capitalize;font-size: 18px">{{ name }}</p>
@@ -129,8 +121,9 @@
     </div>
     <div class="content">
       <div class="contact-profile">
+        <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
         <div class="social-media">
-          <a style="font-size: 20px" href="/accounts/{{ user.pk }}/profile/">My profile</a>
+          
         </div>
       </div>
       <div class="messages">
@@ -154,7 +147,6 @@
 <script>
     var username = {{ username }};
     var chatId = {{ chatId }}
-    document.getElementById("search-input").value
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
         '/ws/chat/' + chatId + '/');
