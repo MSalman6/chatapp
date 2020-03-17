@@ -1,6 +1,4 @@
+*.sqlite3
 env
 .git
 .gitignore
-db.sqlite3
-chat/migrations/__pycache__
-chat/migrations/0001_initial.py

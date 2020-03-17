@@ -240,6 +240,9 @@ def create_chat_view(request):
 
 @login_required
 def index(request):
+    contacts = Contact.objects.all()
+    if str(request.user) not in str(contacts):
+        create_contact(username=request.user)
     user_contact = Contact.objects.filter(user_id=request.user.pk).first()
     status = []
     users = User.objects.all()
@@ -302,6 +305,9 @@ def index(request):
 
 @login_required
 def room(request, chatId):
+    contacts = Contact.objects.all()
+    if str(request.user) not in str(contacts):
+        create_contact(username=request.user)
     user_contact = Contact.objects.filter(user_id=request.user.pk).first()
     status = []
     users = User.objects.all()
