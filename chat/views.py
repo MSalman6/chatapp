@@ -93,6 +93,7 @@ def delete_friend_request(request, pk):
     return HttpResponseRedirect(url)
 
 def remove_friend(request, pk):
+    print(request)
     user1 = Contact.objects.filter(pk=request.user.pk).first()
     user2 = User.objects.filter(pk=pk).first()
     user1.friends.remove(user2.pk)
@@ -132,6 +133,7 @@ def test(request):
 def profile_view(request, pk):
     p = Contact.objects.filter(user_id=pk).first()
     u = p.user
+    g = request.user
     sent_friend_requests = FriendRequest.objects.filter(from_user=p.user)
     rec_friend_requests = FriendRequest.objects.filter(to_user=p.user)
     friends = p.friends.all()
@@ -147,7 +149,11 @@ def profile_view(request, pk):
             from_user=request.user).filter(to_user=p.user)) == 1:
                 button_status = 'friend_request_sent'
 
+    if str(g) in str(friends):
+        button_status = 'already_friends'
+
     context = {
+        'g':g,
         'contact': p,
         'u': u,
         'button_status': button_status,
@@ -166,6 +172,15 @@ def searching(request):
     data = User.objects.filter(Q(username__icontains=inp)).values('username', 'pk')
     for i in range(len(data)):
         dictionary[data[i]['pk']] = data[i]['username']
+    return JsonResponse(dictionary, safe=False)
+
+
+def get_online(request):
+    dictionary = dict()
+    users = User.objects.all()
+    for i in range(len(users)):
+        contact = Contact.objects.filter(user_id=users[i]).first()
+        dictionary[contact.user.username] = contact.status
     return JsonResponse(dictionary, safe=False)
 
 

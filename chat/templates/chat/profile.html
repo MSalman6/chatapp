@@ -65,7 +65,7 @@
 			<h1>Friends</h1>
 			
 			{% for friend in friends_list %}
-			<a href="http://127.0.0.1:8000/accounts/{{ friend.user.id }}/profile/">{{ friend.user.username }}</a><br><small><a class='btn btn-warning' href="/chat/remove-friend/{{ friend.user.id }}/">Remove friend</a></small>
+			<li><a href="http://127.0.0.1:8000/accounts/{{ friend.user.pk }}/profile/" style="text-transform: capitalize">{{ friend.user.username }}</a></li>
 			{% endfor %}
 			<hr>
 			<h2>Sent Requests:</h2>
@@ -75,7 +75,7 @@
 			{% endfor %}
 			</ul>
 			<hr>
-			<h2>Received Friend requests</h2>
+			<h2>Received requests:</h2>
 			
 			{% for r_request in rec_friend_requests %}
 				<p><a href="http://127.0.0.1:8000/accounts/{{ r_request.from_user.pk }}/profile/">{{ r_request.from_user.username }}</a></p>
@@ -85,8 +85,13 @@
 
 		{% else %}
 			
-			{% if button_status == 'not_friend' %}<br>
+		{% if button_status == 'not_friend' %}<br>
 				<small><a class='btn btn-primary' href="/chat/friend-request/send/{{ u.id }}">Send Friend Request</a></small>
+			{% elif button_status == 'already_friends' %}
+				<small><a >Already a Friend</a></small>
+				{% for friend in friends_list %}
+				<a class='btn btn-warning' href="/chat/remove-friend/{{ friend.pk }}/">Remove friend</a>
+				{% endfor %}
 			{% elif button_status == 'friend_request_sent' %}
 				<small><a class="btn btn-warning" href="/chat/friend-request/cancel/{{ u.id }}">Cancel Request</a></small>
 			{% endif %}

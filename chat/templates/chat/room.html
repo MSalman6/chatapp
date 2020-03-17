@@ -79,8 +79,8 @@
         {% for friend in friends %}
         <li class="contact">
             <div class="wrap">
-              <span class="contact-status online"></span>
-              <a href="/accounts/{{ friend.id }}/profile/"><div class="meta">
+              <!-- <span class="contact-status online"></span> -->
+              <a href="/accounts/{{ friend.user.id }}/profile/"><div class="meta">
                <p class="name" style="text-transform: capitalize;font-size: 18px">{{ friend }}</p>
                 <p class="preview"></p>
               </a>
